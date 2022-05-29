@@ -1,1 +1,2 @@
 # DNS client 🌐
+SHABBAT SHALOM 🕯️
