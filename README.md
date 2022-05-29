@@ -1,1 +1,1 @@
-# dns-client
+# dns-client 🌐
