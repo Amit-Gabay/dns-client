@@ -1,0 +1,5 @@
+﻿  nsclient.c
+C:\Users\amitg\source\repos\nsclient\nsclient\nsclient.c(36,2): warning C4013: 'inet_pton' undefined; assuming extern returning int
+C:\Users\amitg\source\repos\nsclient\nsclient\nsclient.c(40,2): warning C4013: 'serve_forever' undefined; assuming extern returning int
+C:\Users\amitg\source\repos\nsclient\nsclient\nsclient.c(70): warning C4716: 'serve_forever': must return a value
+  nsclient.vcxproj -> C:\Users\amitg\source\repos\nsclient\x64\Debug\nsclient.exe
