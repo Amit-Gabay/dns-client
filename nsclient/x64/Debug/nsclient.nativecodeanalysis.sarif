@@ -1,0 +1,529 @@
+{
+  "version": "2.1.0",
+  "$schema": "https://schemastore.azurewebsites.net/schemas/json/sarif-2.1.0-rtm.5.json",
+  "runs": [
+    {
+      "results": [
+        {
+          "ruleId": "C6031",
+          "message": {
+            "text": "Return value ignored: 'WSAStartup'."
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "file:///C:/Users/amitg/source/repos/nsclient/nsclient/nsclient.c"
+                },
+                "region": {
+                  "startLine": 29,
+                  "startColumn": 2,
+                  "endLine": 29,
+                  "endColumn": 30
+                }
+              },
+              "logicalLocations": [
+                {
+                  "fullyQualifiedName": "main",
+                  "decoratedName": "main",
+                  "kind": "function"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "ruleId": "C6031",
+          "message": {
+            "text": "Return value ignored: 'scanf'."
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "file:///C:/Users/amitg/source/repos/nsclient/nsclient/nsclient.c"
+                },
+                "region": {
+                  "startLine": 50,
+                  "startColumn": 3,
+                  "endLine": 50,
+                  "endColumn": 15
+                }
+              },
+              "logicalLocations": [
+                {
+                  "fullyQualifiedName": "ServeForever",
+                  "decoratedName": "ServeForever",
+                  "kind": "function"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "ruleId": "C6001",
+          "message": {
+            "text": "Using uninitialized memory 'queryLen'."
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "file:///C:/Users/amitg/source/repos/nsclient/nsclient/nsclient.c"
+                },
+                "region": {
+                  "startLine": 87,
+                  "startColumn": 25,
+                  "endLine": 87,
+                  "endColumn": 25
+                }
+              },
+              "logicalLocations": [
+                {
+                  "fullyQualifiedName": "dnsQuery",
+                  "decoratedName": "dnsQuery",
+                  "kind": "function"
+                }
+              ]
+            }
+          ],
+          "codeFlows": [
+            {
+              "threadFlows": [
+                {
+                  "locations": [
+                    {
+                      "location": {
+                        "physicalLocation": {
+                          "artifactLocation": {
+                            "uri": "file:///C:/Users/amitg/source/repos/nsclient/nsclient/nsclient.c"
+                          },
+                          "region": {
+                            "startLine": 80,
+                            "startColumn": 8
+                          }
+                        }
+                      },
+                      "importance": "unimportant"
+                    },
+                    {
+                      "location": {
+                        "physicalLocation": {
+                          "artifactLocation": {
+                            "uri": "file:///C:/Users/amitg/source/repos/nsclient/nsclient/nsclient.c"
+                          },
+                          "region": {
+                            "startLine": 81,
+                            "startColumn": 9
+                          }
+                        }
+                      },
+                      "importance": "unimportant"
+                    },
+                    {
+                      "location": {
+                        "physicalLocation": {
+                          "artifactLocation": {
+                            "uri": "file:///C:/Users/amitg/source/repos/nsclient/nsclient/nsclient.c"
+                          },
+                          "region": {
+                            "startLine": 83,
+                            "startColumn": 8
+                          }
+                        },
+                        "message": {
+                          "text": "'queryLen' is not initialized"
+                        }
+                      },
+                      "kinds": [
+                        "declaration"
+                      ],
+                      "importance": "essential"
+                    },
+                    {
+                      "location": {
+                        "physicalLocation": {
+                          "artifactLocation": {
+                            "uri": "file:///C:/Users/amitg/source/repos/nsclient/nsclient/nsclient.c"
+                          },
+                          "region": {
+                            "startLine": 86,
+                            "startColumn": 11
+                          }
+                        }
+                      },
+                      "importance": "unimportant"
+                    },
+                    {
+                      "location": {
+                        "physicalLocation": {
+                          "artifactLocation": {
+                            "uri": "file:///C:/Users/amitg/source/repos/nsclient/nsclient/nsclient.c"
+                          },
+                          "region": {
+                            "startLine": 87,
+                            "startColumn": 2
+                          }
+                        },
+                        "message": {
+                          "text": "'queryLen' is an Input to 'sendto' (declared at c:\\program files (x86)\\windows kits\\10\\include\\10.0.22000.0\\um\\winsock2.h:2106)"
+                        }
+                      },
+                      "kinds": [
+                        "usage"
+                      ],
+                      "importance": "important"
+                    },
+                    {
+                      "location": {
+                        "physicalLocation": {
+                          "artifactLocation": {
+                            "uri": "file:///C:/Users/amitg/source/repos/nsclient/nsclient/nsclient.c"
+                          },
+                          "region": {
+                            "startLine": 88,
+                            "startColumn": 2
+                          }
+                        }
+                      },
+                      "importance": "unimportant"
+                    },
+                    {
+                      "location": {
+                        "physicalLocation": {
+                          "artifactLocation": {
+                            "uri": "file:///C:/Users/amitg/source/repos/nsclient/nsclient/nsclient.c"
+                          },
+                          "region": {
+                            "startLine": 91,
+                            "startColumn": 8
+                          }
+                        }
+                      },
+                      "importance": "unimportant"
+                    },
+                    {
+                      "location": {
+                        "physicalLocation": {
+                          "artifactLocation": {
+                            "uri": "file:///C:/Users/amitg/source/repos/nsclient/nsclient/nsclient.c"
+                          },
+                          "region": {
+                            "startLine": 92,
+                            "startColumn": 6
+                          }
+                        }
+                      },
+                      "importance": "unimportant"
+                    },
+                    {
+                      "location": {
+                        "physicalLocation": {
+                          "artifactLocation": {
+                            "uri": "file:///C:/Users/amitg/source/repos/nsclient/nsclient/nsclient.c"
+                          },
+                          "region": {
+                            "startLine": 93,
+                            "startColumn": 2
+                          }
+                        }
+                      },
+                      "importance": "unimportant"
+                    },
+                    {
+                      "location": {
+                        "physicalLocation": {
+                          "artifactLocation": {
+                            "uri": "file:///C:/Users/amitg/source/repos/nsclient/nsclient/nsclient.c"
+                          },
+                          "region": {
+                            "startLine": 94,
+                            "startColumn": 11
+                          }
+                        }
+                      },
+                      "importance": "unimportant"
+                    },
+                    {
+                      "location": {
+                        "physicalLocation": {
+                          "artifactLocation": {
+                            "uri": "file:///C:/Users/amitg/source/repos/nsclient/nsclient/nsclient.c"
+                          },
+                          "region": {
+                            "startLine": 96,
+                            "startColumn": 2
+                          }
+                        }
+                      },
+                      "importance": "unimportant"
+                    },
+                    {
+                      "location": {
+                        "physicalLocation": {
+                          "artifactLocation": {
+                            "uri": "file:///C:/Users/amitg/source/repos/nsclient/nsclient/nsclient.c"
+                          },
+                          "region": {
+                            "startLine": 87,
+                            "startColumn": 25
+                          }
+                        },
+                        "message": {
+                          "text": "'queryLen' is used, but may not have been initialized"
+                        }
+                      },
+                      "kinds": [
+                        "usage"
+                      ],
+                      "importance": "essential"
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "ruleId": "C6387",
+          "message": {
+            "text": "'dnsResponse' could be '0'."
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "file:///C:/Users/amitg/source/repos/nsclient/nsclient/nsclient.c"
+                },
+                "region": {
+                  "startLine": 93,
+                  "startColumn": 2,
+                  "endLine": 93,
+                  "endColumn": 67
+                }
+              },
+              "logicalLocations": [
+                {
+                  "fullyQualifiedName": "dnsQuery",
+                  "decoratedName": "dnsQuery",
+                  "kind": "function"
+                }
+              ]
+            }
+          ],
+          "codeFlows": [
+            {
+              "threadFlows": [
+                {
+                  "locations": [
+                    {
+                      "location": {
+                        "physicalLocation": {
+                          "artifactLocation": {
+                            "uri": "file:///C:/Users/amitg/source/repos/nsclient/nsclient/nsclient.c"
+                          },
+                          "region": {
+                            "startLine": 80,
+                            "startColumn": 8
+                          }
+                        }
+                      },
+                      "importance": "unimportant"
+                    },
+                    {
+                      "location": {
+                        "physicalLocation": {
+                          "artifactLocation": {
+                            "uri": "file:///C:/Users/amitg/source/repos/nsclient/nsclient/nsclient.c"
+                          },
+                          "region": {
+                            "startLine": 81,
+                            "startColumn": 9
+                          }
+                        }
+                      },
+                      "importance": "unimportant"
+                    },
+                    {
+                      "location": {
+                        "physicalLocation": {
+                          "artifactLocation": {
+                            "uri": "file:///C:/Users/amitg/source/repos/nsclient/nsclient/nsclient.c"
+                          },
+                          "region": {
+                            "startLine": 83,
+                            "startColumn": 8
+                          }
+                        }
+                      },
+                      "importance": "unimportant"
+                    },
+                    {
+                      "location": {
+                        "physicalLocation": {
+                          "artifactLocation": {
+                            "uri": "file:///C:/Users/amitg/source/repos/nsclient/nsclient/nsclient.c"
+                          },
+                          "region": {
+                            "startLine": 86,
+                            "startColumn": 11
+                          }
+                        }
+                      },
+                      "importance": "unimportant"
+                    },
+                    {
+                      "location": {
+                        "physicalLocation": {
+                          "artifactLocation": {
+                            "uri": "file:///C:/Users/amitg/source/repos/nsclient/nsclient/nsclient.c"
+                          },
+                          "region": {
+                            "startLine": 87,
+                            "startColumn": 2
+                          }
+                        }
+                      },
+                      "importance": "unimportant"
+                    },
+                    {
+                      "location": {
+                        "physicalLocation": {
+                          "artifactLocation": {
+                            "uri": "file:///C:/Users/amitg/source/repos/nsclient/nsclient/nsclient.c"
+                          },
+                          "region": {
+                            "startLine": 88,
+                            "startColumn": 2
+                          }
+                        }
+                      },
+                      "importance": "unimportant"
+                    },
+                    {
+                      "location": {
+                        "physicalLocation": {
+                          "artifactLocation": {
+                            "uri": "file:///C:/Users/amitg/source/repos/nsclient/nsclient/nsclient.c"
+                          },
+                          "region": {
+                            "startLine": 91,
+                            "startColumn": 8
+                          }
+                        },
+                        "message": {
+                          "text": "'dnsResponse' may be NULL"
+                        }
+                      },
+                      "kinds": [
+                        "declaration"
+                      ],
+                      "importance": "essential"
+                    },
+                    {
+                      "location": {
+                        "physicalLocation": {
+                          "artifactLocation": {
+                            "uri": "file:///C:/Users/amitg/source/repos/nsclient/nsclient/nsclient.c"
+                          },
+                          "region": {
+                            "startLine": 92,
+                            "startColumn": 6
+                          }
+                        }
+                      },
+                      "importance": "unimportant"
+                    },
+                    {
+                      "location": {
+                        "physicalLocation": {
+                          "artifactLocation": {
+                            "uri": "file:///C:/Users/amitg/source/repos/nsclient/nsclient/nsclient.c"
+                          },
+                          "region": {
+                            "startLine": 93,
+                            "startColumn": 2
+                          }
+                        },
+                        "message": {
+                          "text": "'dnsResponse' is an In/Out argument to 'recvfrom' (declared at c:\\program files (x86)\\windows kits\\10\\include\\10.0.22000.0\\um\\winsock2.h:2031)"
+                        }
+                      },
+                      "kinds": [
+                        "declaration"
+                      ],
+                      "importance": "important"
+                    },
+                    {
+                      "location": {
+                        "physicalLocation": {
+                          "artifactLocation": {
+                            "uri": "file:///C:/Users/amitg/source/repos/nsclient/nsclient/nsclient.c"
+                          },
+                          "region": {
+                            "startLine": 93,
+                            "startColumn": 2
+                          }
+                        },
+                        "message": {
+                          "text": "'dnsResponse' should not be NULL, because this is not consistent with the SAL annotation on 'recvfrom'"
+                        }
+                      },
+                      "kinds": [
+                        "usage"
+                      ],
+                      "importance": "essential"
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        }
+      ],
+      "tool": {
+        "driver": {
+          "name": "PREfast",
+          "fullName": "PREfast Code Analysis",
+          "version": "14.32.31329.0",
+          "informationUri": "https://aka.ms/cpp/ca"
+        }
+      },
+      "invocations": [
+        {
+          "executionSuccessful": true
+        }
+      ],
+      "artifacts": [
+        {
+          "location": {
+            "uri": "file:///C:/Users/amitg/source/repos/nsclient/nsclient/nsclient.c"
+          },
+          "roles": [
+            "analysisTarget",
+            "resultFile"
+          ],
+          "hashes": {
+            "sha-256": "792d2b234f19a308f005f0ceba5e24dd12130b5b9ae95705a7bbf1a177a7440b"
+          }
+        },
+        {
+          "location": {
+            "uri": "file:///c:/users/amitg/source/repos/nsclient/nsclient/nsclient.h"
+          },
+          "hashes": {
+            "sha-256": "fa4759868f1778ece5d0631419c6b902a7f40a288348629e9b3f9e0a0ecb4aa0"
+          }
+        },
+        {
+          "location": {
+            "uri": "file:///c:/users/amitg/source/repos/nsclient/nsclient/utils.h"
+          },
+          "hashes": {
+            "sha-256": "678334475d5c0cd2dd328abd7984363c9867c28e84139f99f3ebc09bb0783ac6"
+          }
+        }
+      ]
+    }
+  ]
+}

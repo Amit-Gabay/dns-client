@@ -1,5 +1,13 @@
-﻿  nsclient.c
-C:\Users\amitg\source\repos\nsclient\nsclient\nsclient.c(36,2): warning C4013: 'inet_pton' undefined; assuming extern returning int
-C:\Users\amitg\source\repos\nsclient\nsclient\nsclient.c(40,2): warning C4013: 'serve_forever' undefined; assuming extern returning int
-C:\Users\amitg\source\repos\nsclient\nsclient\nsclient.c(70): warning C4716: 'serve_forever': must return a value
-  nsclient.vcxproj -> C:\Users\amitg\source\repos\nsclient\x64\Debug\nsclient.exe
+﻿  utils.c
+C:\Users\amitg\source\repos\nsclient\nsclient\utils.c(62,18): warning C4133: 'return': incompatible types - from 'DNS_HEADER_T *' to 'char *'
+C:\Users\amitg\source\repos\nsclient\nsclient\utils.c(73,20): warning C4133: 'return': incompatible types - from 'DNS_QUESTION *' to 'char *'
+C:\Users\amitg\source\repos\nsclient\nsclient\utils.c(78,1): warning C4029: declared formal parameter list different from definition
+C:\Users\amitg\source\repos\nsclient\nsclient\utils.c(80,1): warning C4133: 'initializing': incompatible types - from 'char *' to 'DNS_HEADER_T *'
+C:\Users\amitg\source\repos\nsclient\nsclient\utils.c(81,1): warning C4133: 'initializing': incompatible types - from 'char *' to 'DNS_QUESTION *'
+C:\Users\amitg\source\repos\nsclient\nsclient\utils.c(85,45): warning C4267: 'initializing': conversion from 'size_t' to 'unsigned int', possible loss of data
+C:\Users\amitg\source\repos\nsclient\nsclient\utils.c(112,63): warning C4047: 'function': 'PDNS_RECORD *' differs in levels of indirection from 'DNS_RECORD *'
+C:\Users\amitg\source\repos\nsclient\nsclient\utils.c(112,55): warning C4024: 'DnsExtractRecordsFromMessage_UTF8': different types for formal and actual parameter 3
+C:\Users\amitg\source\repos\nsclient\nsclient\utils.c(116,49): warning C4047: '=': 'char *' differs in levels of indirection from 'WCHAR'
+C:\Users\amitg\source\repos\nsclient\nsclient\utils.c(123,25): warning C4047: '=': 'char *' differs in levels of indirection from 'unsigned int'
+utils.obj : error LNK2019: unresolved external symbol DnsExtractRecordsFromMessage_UTF8 referenced in function ParseResponse
+C:\Users\amitg\source\repos\nsclient\x64\Debug\nsclient.exe : fatal error LNK1120: 1 unresolved externals

@@ -2,21 +2,19 @@
 #define _CRT_SECURE_NO_WARNINGS
 
 #include "utils.h"
-#include <winsock2.h>
-#include <stdlib.h>
-#include <stdio.h>
+#include "nsclient.h"
 // #include <Ws2tcpip.h> - Check if needed
-#include <errno.h>
 
 #pragma comment(lib, "ws2_32.lib")
 
-struct sockaddr_in DNS_SERVER_ADDR;
-SOCKET sock;
+
+unsigned int buffer_len;
+SOCKADDR_IN dnsServerAddr;
 
 
 int main(int argc, char** argv)
 {
-	char* dns_server_ip;
+	char* dnsServerIp;
 	WSADATA wsaData;
 	SOCKET sock;
 
@@ -26,45 +24,74 @@ int main(int argc, char** argv)
 		return 0;
 	}
 
-	dns_server_ip = argv[1];
+	dnsServerIp = argv[1];
 
 	WSAStartup(MAKEWORD(2, 2), &wsaData);
 
-	sock = socket(AF_INET, SOCK_DGRAM, 17);
-
 	/* Fill the DNS server address */
-	inet_pton(AF_INET, dns_server_ip, &(DNS_SERVER_ADDR.sin_addr));
-	DNS_SERVER_ADDR.sin_family = AF_INET;
-	DNS_SERVER_ADDR.sin_port = htons(53);
+	inet_pton(AF_INET, dnsServerIp, &(dnsServerAddr.sin_addr));
+	dnsServerAddr.sin_family = AF_INET;
+	dnsServerAddr.sin_port = htons(53);
 
-	serve_forever();
+	ServeForever();
 }
 
 
-int serve_forever()
+int ServeForever()
 {
-	char domain_name[256]; // Validate the length
-	struct hostent *response;
-	struct in_addr result_addr;
+	char domainName[256]; // Validate the length
+	HOSTENT *response;
+	struct in_addr resultIp;
+	char ipAddress[256]; // Validate the length
 
 	while (1)
 	{
 		printf("nsclient> ");
-		scanf("%s", domain_name);
+		scanf("%s", domainName);
 
-		if (strcmp(domain_name, "quit") == 0)
+		if (!CheckDomainName(domainName))
+		{
+			printf("ERROR: BAD NAME\n");
+			return 0;
+		}
+
+		if (strcmp(domainName, "quit") == 0)
 		{
 			break;
 		}
 
-		response = gethostbyname(domain_name);
+		response = dnsQuery(domainName);
+
 		if (response != NULL)
 		{
 			if (response->h_addr_list[0] != NULL)
 			{
-				result_addr.s_addr = *(u_long*) response->h_addr_list[0];
-				printf("%s\n", inet_ntoa(result_addr));
+				resultIp.s_addr = *(u_long*) response->h_addr_list[0];
+				inet_ntop(AF_INET, &resultIp, ipAddress, 256);
+				printf("%s\n", ipAddress);
 			}
 		}
 	}
+}
+
+
+HOSTENT* dnsQuery(char* domainName)
+{
+	char* dnsQuery;
+	SOCKET sock = socket(AF_INET, SOCK_DGRAM, 17);
+	// setsockopt() TODO: set timeout to 2 seconds.
+	u_int queryLen;
+
+	// Send DNS query
+	dnsQuery = BuildQuery(domainName, &queryLen);
+	sendto(sock, dnsQuery, queryLen, 0, (SOCKADDR*)&dnsServerAddr, sizeof(SOCKADDR_IN));
+	free(dnsQuery);
+
+	// Parse DNS response
+	char* dnsResponse = (char*)malloc(512); //Validate length
+	int addrLen = sizeof(SOCKADDR_IN);
+	recvfrom(sock, dnsResponse, 512, 0,  (SOCKADDR*)&dnsServerAddr, &addrLen);
+	HOSTENT* responseEntry = ParseResponse(dnsResponse);
+
+	return responseEntry;
 }
