@@ -71,6 +71,10 @@ int ServeForever()
 				printf("%s\n", ipAddress);
 			}
 		}
+		else
+		{
+			printf("ERROR: NONEXISTENT\n");
+		}
 	}
 }
 
@@ -90,8 +94,8 @@ HOSTENT* dnsQuery(char* domainName)
 	// Parse DNS response
 	char* dnsResponse = (char*)malloc(512); //Validate length
 	int addrLen = sizeof(SOCKADDR_IN);
-	recvfrom(sock, dnsResponse, 512, 0,  (SOCKADDR*)&dnsServerAddr, &addrLen);
-	HOSTENT* responseEntry = ParseResponse(dnsResponse);
+	recvfrom(sock, dnsResponse, 512, 0, (SOCKADDR*)&dnsServerAddr, &addrLen);
+	HOSTENT* responseEntry = ParseResponse(dnsResponse, domainName);
 
 	return responseEntry;
 }

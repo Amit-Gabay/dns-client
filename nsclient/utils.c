@@ -42,7 +42,7 @@ char* EncodeDomainName(char* domainName)
 
 char* BuildHeaderSection()
 {
-	DNS_HEADER_T* dnsHeader = (DNS_HEADER_T*)malloc(sizeof(DNS_HEADER_T));
+	DNS_HEADER* dnsHeader = (DNS_HEADER*)malloc(sizeof(DNS_HEADER));
 
 	dnsHeader->id = htons(rand() * 2);
 	dnsHeader->qr = 0;
@@ -76,7 +76,7 @@ char* BuildQuestionSection()
 char* BuildQuery(char* domainName, u_int* queryLen)
 {
 	// Build Header & Question sections
-	DNS_HEADER_T* dnsHeader = BuildHeaderSection();
+	DNS_HEADER* dnsHeader = BuildHeaderSection();
 	DNS_QUESTION* dnsQuestion = BuildQuestionSection();
 
 	// Encode domain name
@@ -84,12 +84,12 @@ char* BuildQuery(char* domainName, u_int* queryLen)
 	unsigned int nameLen = strlen(encodedName) + 1;
 
 	// Compose whole message
-	*queryLen = sizeof(DNS_HEADER_T) + nameLen + sizeof(DNS_QUESTION);
+	*queryLen = sizeof(DNS_HEADER) + nameLen + sizeof(DNS_QUESTION);
 	char* query = (char*)malloc(*queryLen);
 	char* pointer = query;
 
-	memcpy(pointer, dnsHeader, sizeof(DNS_HEADER_T));
-	pointer += sizeof(DNS_HEADER_T);
+	memcpy(pointer, dnsHeader, sizeof(DNS_HEADER));
+	pointer += sizeof(DNS_HEADER);
 	memcpy(pointer, encodedName, nameLen);
 	pointer += nameLen;
 	memcpy(pointer, dnsQuestion, sizeof(DNS_QUESTION));
@@ -101,25 +101,100 @@ char* BuildQuery(char* domainName, u_int* queryLen)
 }
 
 
-HOSTENT* ParseResponse(char* rawResponse)
+char* SkipDomainName(char* rawSection)
 {
-	DNS_MESSAGE_BUFFER dnsResponse;
-	DNS_RECORD records;
-	memcpy(&dnsResponse.MessageHead, rawResponse, sizeof(DNS_HEADER));
-	rawResponse += sizeof(DNS_HEADER);
-	memcpy(&dnsResponse.MessageBody, rawResponse, 512 - sizeof(DNS_HEADER));
-	DnsExtractRecordsFromMessage_UTF8(&dnsResponse, 512, &records);
-	unsigned int resultIp = records.pNext->Data.A.IpAddress;
+	u_char labelSize;
+	char* tmp = rawSection;
+	do
+	{
+		labelSize = (u_char)rawSection[0];
+		if ((labelSize >> 6) == 0b11)
+		{
+			return rawSection + sizeof(unsigned short);
+		}
+		rawSection += labelSize + 1;
+	} while (labelSize != 0);
 
+	return rawSection;
+}
+
+
+char* FindAnswerBody(char* rawResponse)
+{
+	DNS_HEADER dnsHeader;
+	memcpy(&dnsHeader, rawResponse, sizeof(DNS_HEADER));
+	u_short questionNum = ntohs(dnsHeader.qdcount);
+	u_short answerNum = ntohs(dnsHeader.ancount);
+	u_short authorativeNum = ntohs(dnsHeader.nscount);
+	u_short additionalNum = ntohs(dnsHeader.arcount);
+
+	if (answerNum == 0) { return NULL; }
+
+	char* rawQuestion = rawResponse + sizeof(DNS_HEADER);
+	
+	int questionIdx;
+	
+	for (questionIdx = 0; questionIdx < questionNum; questionIdx++)
+	{
+		rawQuestion = SkipDomainName(rawQuestion);
+		rawQuestion += sizeof(DNS_QUESTION);
+	}
+
+	char* rawAnswer = rawQuestion;
+
+	RESOURCE_RECORD answerBody;
+	int answerIdx;
+
+	for (answerIdx = 0; answerIdx < answerNum; answerIdx++)
+	{
+		rawAnswer = SkipDomainName(rawAnswer);
+		memcpy(&answerBody, rawAnswer, sizeof(RESOURCE_RECORD));
+		if (ntohs(answerBody.class) == 1 && ntohs(answerBody.type) == 1)
+		{
+			return rawAnswer;
+		}
+		rawAnswer += sizeof(RESOURCE_RECORD) + ntohs(answerBody.rdlength);
+	}
+
+	int authorativeIdx;
+
+	for (authorativeIdx = 0; authorativeIdx < authorativeNum; authorativeIdx++)
+	{
+		rawAnswer = SkipDomainName(rawAnswer);
+		memcpy(&answerBody, rawAnswer, sizeof(RESOURCE_RECORD));
+		rawAnswer += sizeof(RESOURCE_RECORD) + ntohs(answerBody.rdlength);
+	}
+
+	int additionalIdx;
+
+	for (additionalIdx = 0; additionalIdx < additionalNum; additionalIdx++)
+	{
+		rawAnswer = SkipDomainName(rawAnswer);
+		memcpy(&answerBody, rawAnswer, sizeof(RESOURCE_RECORD));
+		if (ntohs(answerBody.class) == 1 && ntohs(answerBody.type) == 1)
+		{
+			return rawAnswer;
+		}
+		rawAnswer += sizeof(RESOURCE_RECORD) + ntohs(answerBody.rdlength);
+	}
+	
+	return NULL;
+}
+
+
+HOSTENT* ParseResponse(char* rawResponse, char* domainName)
+{
 	HOSTENT* responseEntry = (HOSTENT*)malloc(sizeof(HOSTENT));
-	responseEntry->h_name = *(records.pNext->pName);
-	char** aliases = (char**)malloc(sizeof(char*));
-	aliases[0] = NULL;
-	responseEntry->h_aliases = aliases;
+	char* rawAnswer = FindAnswerBody(rawResponse);
+	if (rawAnswer == NULL) { return NULL; }
+
+	responseEntry->h_name = domainName;
 	responseEntry->h_addrtype = AF_INET;
-	responseEntry->h_length = sizeof(unsigned int);
-	char** addresses = (char**)malloc(2*sizeof(char*));
-	addresses[0] = resultIp;
+	responseEntry->h_length = 4;
+	responseEntry->h_aliases = NULL;
+	char** addresses = (char**)malloc(2 * sizeof(char*));
+	addresses[0] = (char*)malloc(sizeof(u_long));
+	memcpy(addresses[0], (rawAnswer + sizeof(RESOURCE_RECORD)), 4);
 	addresses[1] = NULL;
 	responseEntry->h_addr_list = addresses;
 

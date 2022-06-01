@@ -4,13 +4,14 @@
 #define _CRT_SECURE_NO_WARNINGS
 
 #include <winsock2.h>
-#include <windns.h>
+//#include <windns.h>
 #include <stdlib.h>
 #include <stdio.h>
 #include <errno.h>
 #include <string.h>
 
 #pragma comment(lib, "ws2_32.lib")
+//#pragma comment(lib, "dnsapi.lib")
 
 
 struct {
@@ -27,7 +28,7 @@ struct {
 	unsigned short ancount;
 	unsigned short nscount;
 	unsigned short arcount;
-} typedef DNS_HEADER_T;
+} typedef DNS_HEADER;
 
 struct {
 	unsigned short qtype;
@@ -35,12 +36,11 @@ struct {
 } typedef DNS_QUESTION;
 
 struct {
-	char* name;
 	unsigned short type;
 	unsigned short class;
-	unsigned int ttl;
+	unsigned short ttl_1;
+	unsigned short ttl_2;
 	unsigned short rdlength;
-	unsigned char* rdata;
 } typedef RESOURCE_RECORD;
 
 
@@ -49,6 +49,8 @@ int CheckDomainName(char* domainName);
 char* BuildHeaderSection();
 char* BuildQuestionSection();
 char* BuildQuery(char* domainName);
-HOSTENT* ParseResponse(char* rawResponse);
+char* FindAnswerBody(char* rawResponse);
+char* SkipDomainName(char* rawSection);
+HOSTENT* ParseResponse(char* rawResponse, char* domainName);
 
 #endif
