@@ -49,7 +49,7 @@ char* BuildHeaderSection()
 	dnsHeader->opcode = 0;
 	dnsHeader->aa = 0;
 	dnsHeader->tc = 0;
-	dnsHeader->rd = 0;
+	dnsHeader->rd = 0x1;
 	dnsHeader->ra = 0;
 	dnsHeader->z = 0x000;
 	dnsHeader->rcode = 0x0000;
@@ -66,8 +66,8 @@ char* BuildQuestionSection()
 {
 	DNS_QUESTION* dnsQuestion = (DNS_QUESTION*)malloc(sizeof(DNS_QUESTION));
 
-	dnsQuestion->qtype = htons(1);    // A  (a host address)
-	dnsQuestion->qclass = htons(1);   // IN (Internet)
+	dnsQuestion->qtype = htons(TYPE_A);	     // A  (a host address)
+	dnsQuestion->qclass = htons(CLASS_IN);   // IN (Internet)
 
 	return dnsQuestion;
 }
@@ -119,6 +119,26 @@ char* SkipDomainName(char* rawSection)
 }
 
 
+int SearchAnswerInSection(char** rawSection, int sectionNum)
+{
+	RESOURCE_RECORD answerBody;
+	int sectionIdx;
+
+	for (sectionIdx = 0; sectionIdx < sectionNum; sectionIdx++)
+	{
+		*rawSection = SkipDomainName(*rawSection);
+		memcpy(&answerBody, *rawSection, sizeof(RESOURCE_RECORD));
+		if (ntohs(answerBody.class) == CLASS_IN && ntohs(answerBody.type) == TYPE_A)
+		{
+			return FOUND;
+		}
+		*rawSection += sizeof(RESOURCE_RECORD) + ntohs(answerBody.rdlength);
+	}
+
+	return NOT_FOUND;
+}
+
+
 char* FindAnswerBody(char* rawResponse)
 {
 	DNS_HEADER dnsHeader;
@@ -142,42 +162,9 @@ char* FindAnswerBody(char* rawResponse)
 
 	char* rawAnswer = rawQuestion;
 
-	RESOURCE_RECORD answerBody;
-	int answerIdx;
+	int isFound = SearchAnswerInSection(&rawAnswer, answerNum);
+	if (isFound == FOUND) { return rawAnswer; }
 
-	for (answerIdx = 0; answerIdx < answerNum; answerIdx++)
-	{
-		rawAnswer = SkipDomainName(rawAnswer);
-		memcpy(&answerBody, rawAnswer, sizeof(RESOURCE_RECORD));
-		if (ntohs(answerBody.class) == 1 && ntohs(answerBody.type) == 1)
-		{
-			return rawAnswer;
-		}
-		rawAnswer += sizeof(RESOURCE_RECORD) + ntohs(answerBody.rdlength);
-	}
-
-	int authorativeIdx;
-
-	for (authorativeIdx = 0; authorativeIdx < authorativeNum; authorativeIdx++)
-	{
-		rawAnswer = SkipDomainName(rawAnswer);
-		memcpy(&answerBody, rawAnswer, sizeof(RESOURCE_RECORD));
-		rawAnswer += sizeof(RESOURCE_RECORD) + ntohs(answerBody.rdlength);
-	}
-
-	int additionalIdx;
-
-	for (additionalIdx = 0; additionalIdx < additionalNum; additionalIdx++)
-	{
-		rawAnswer = SkipDomainName(rawAnswer);
-		memcpy(&answerBody, rawAnswer, sizeof(RESOURCE_RECORD));
-		if (ntohs(answerBody.class) == 1 && ntohs(answerBody.type) == 1)
-		{
-			return rawAnswer;
-		}
-		rawAnswer += sizeof(RESOURCE_RECORD) + ntohs(answerBody.rdlength);
-	}
-	
 	return NULL;
 }
 

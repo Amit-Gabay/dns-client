@@ -16,14 +16,17 @@
 
 struct {
 	unsigned short id;
-	unsigned char qr : 1;
-	unsigned char opcode : 4;
-	unsigned char aa : 1;
-	unsigned char tc : 1;
+
 	unsigned char rd : 1;
-	unsigned char ra : 1;
-	unsigned char z : 3;
+	unsigned char tc : 1;
+	unsigned char aa : 1;
+	unsigned char opcode : 4;
+	unsigned char qr : 1;
+
 	unsigned char rcode : 4;
+	unsigned char z : 3;
+	unsigned char ra : 1;
+
 	unsigned short qdcount;
 	unsigned short ancount;
 	unsigned short nscount;
@@ -42,6 +45,13 @@ struct {
 	unsigned short ttl_2;
 	unsigned short rdlength;
 } typedef RESOURCE_RECORD;
+
+
+#define FOUND (1)
+#define NOT_FOUND (0)
+
+#define TYPE_A (1)
+#define CLASS_IN (1)
 
 
 char* EncodeDomainName(char* domainName);
