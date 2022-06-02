@@ -1,1 +1,8 @@
-﻿  nsclient.vcxproj -> C:\Users\amitg\source\repos\nsclient\x64\Debug\nsclient.exe
+﻿  utils.c
+C:\Users\amitg\source\repos\nsclient\nsclient\utils.c(79,18): warning C4133: 'return': incompatible types - from 'DNS_HEADER *' to 'char *'
+C:\Users\amitg\source\repos\nsclient\nsclient\utils.c(98,20): warning C4133: 'return': incompatible types - from 'DNS_QUESTION *' to 'char *'
+C:\Users\amitg\source\repos\nsclient\nsclient\utils.c(103,1): warning C4029: declared formal parameter list different from definition
+C:\Users\amitg\source\repos\nsclient\nsclient\utils.c(112,34): warning C4133: '=': incompatible types - from 'char *' to 'DNS_HEADER *'
+C:\Users\amitg\source\repos\nsclient\nsclient\utils.c(113,38): warning C4133: '=': incompatible types - from 'char *' to 'DNS_QUESTION *'
+C:\Users\amitg\source\repos\nsclient\nsclient\utils.c(117,32): warning C4267: '=': conversion from 'size_t' to 'unsigned int', possible loss of data
+  nsclient.vcxproj -> C:\Users\amitg\source\repos\nsclient\x64\Debug\nsclient.exe

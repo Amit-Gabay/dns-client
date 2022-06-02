@@ -7,13 +7,23 @@ int CheckDomainName(char* domainName)
 }
 
 
+/**
+* Encodes a null-terminated domain name into labels based encoding (as in RFC-1035).
+*/
 char* EncodeDomainName(char* domainName)
 {
-	char* encodedName = (char*)malloc(256); // Validate the length
+	char* encodedName;
 	int dstIdx = 0;
 	int startIdx = 0;
 	int endIdx = 0;
 	int labelLen;
+
+	encodedName = (char*)malloc(256);		// **TODO: Validate length**
+	if (encodedName == NULL)
+	{
+		perror("ERROR");
+		exit(1);
+	}
 
 	while (domainName[endIdx] != '\0')
 	{
@@ -40,9 +50,17 @@ char* EncodeDomainName(char* domainName)
 }
 
 
+/**
+* Creates header section for the DNS query to be sent.
+*/
 char* BuildHeaderSection()
 {
 	DNS_HEADER* dnsHeader = (DNS_HEADER*)malloc(sizeof(DNS_HEADER));
+	if (dnsHeader == NULL)
+	{
+		perror("ERROR");
+		exit(1);
+	}
 
 	dnsHeader->id = htons(rand() * 2);
 	dnsHeader->qr = 0;
@@ -62,9 +80,17 @@ char* BuildHeaderSection()
 }
 
 
+/**
+* Creates question section for the DNS query to be sent.
+*/
 char* BuildQuestionSection()
 {
 	DNS_QUESTION* dnsQuestion = (DNS_QUESTION*)malloc(sizeof(DNS_QUESTION));
+	if (dnsQuestion == NULL)
+	{
+		perror("ERROR");
+		exit(1);
+	}
 
 	dnsQuestion->qtype = htons(TYPE_A);	     // A  (a host address)
 	dnsQuestion->qclass = htons(CLASS_IN);   // IN (Internet)
@@ -75,18 +101,30 @@ char* BuildQuestionSection()
 
 char* BuildQuery(char* domainName, u_int* queryLen)
 {
+	DNS_HEADER* dnsHeader;
+	DNS_QUESTION* dnsQuestion;
+	char* encodedName;
+	char* query;
+	char* pointer;
+	unsigned int nameLen;
+
 	// Build Header & Question sections
-	DNS_HEADER* dnsHeader = BuildHeaderSection();
-	DNS_QUESTION* dnsQuestion = BuildQuestionSection();
+	dnsHeader = BuildHeaderSection();
+	dnsQuestion = BuildQuestionSection();
 
 	// Encode domain name
-	char* encodedName = EncodeDomainName(domainName);
-	unsigned int nameLen = strlen(encodedName) + 1;
+	encodedName = EncodeDomainName(domainName);
+	nameLen = strlen(encodedName) + 1;
 
 	// Compose whole message
 	*queryLen = sizeof(DNS_HEADER) + nameLen + sizeof(DNS_QUESTION);
-	char* query = (char*)malloc(*queryLen);
-	char* pointer = query;
+	query = (char*)malloc(*queryLen);
+	if (query == NULL)
+	{
+		perror("ERROR");
+		exit(1);
+	}
+	pointer = query;
 
 	memcpy(pointer, dnsHeader, sizeof(DNS_HEADER));
 	pointer += sizeof(DNS_HEADER);
@@ -101,10 +139,14 @@ char* BuildQuery(char* domainName, u_int* queryLen)
 }
 
 
+/**
+* When parsing a DNS message, domain names in it could be skipped using this function.
+*/
 char* SkipDomainName(char* rawSection)
 {
 	u_char labelSize;
 	char* tmp = rawSection;
+
 	do
 	{
 		labelSize = (u_char)rawSection[0];
@@ -119,6 +161,9 @@ char* SkipDomainName(char* rawSection)
 }
 
 
+/**
+* Searches for an answer to our DNS translation request in a given message section.
+*/
 int SearchAnswerInSection(char** rawSection, int sectionNum)
 {
 	RESOURCE_RECORD answerBody;
@@ -139,20 +184,47 @@ int SearchAnswerInSection(char** rawSection, int sectionNum)
 }
 
 
+/**
+* Checks whether the DNS response header is valid.
+*/
+int CheckResponseHeader(DNS_HEADER* dnsHeader)
+{
+	u_char isResponse = dnsHeader->qr;
+	u_char responseCode = dnsHeader->rcode;
+
+	if (isResponse != 1) { return INVALID; }
+
+	if (responseCode != 0x0000) { return INVALID; }
+
+	return VALID;
+}
+
+
+/**
+* Given a raw DNS response message, finds its resource record which contains the translation answer (IPv4 address).
+* @return pointer to the beginning of the found answer section, or NULL if no valid answer section was found.
+*/
 char* FindAnswerBody(char* rawResponse)
 {
 	DNS_HEADER dnsHeader;
+	u_short questionNum;
+	u_short answerNum;
+	char* rawQuestion;
+	int questionIdx;
+	char* rawAnswer;
+	int isFound;
+
 	memcpy(&dnsHeader, rawResponse, sizeof(DNS_HEADER));
-	u_short questionNum = ntohs(dnsHeader.qdcount);
-	u_short answerNum = ntohs(dnsHeader.ancount);
-	u_short authorativeNum = ntohs(dnsHeader.nscount);
-	u_short additionalNum = ntohs(dnsHeader.arcount);
+	questionNum = ntohs(dnsHeader.qdcount);
+	answerNum = ntohs(dnsHeader.ancount);
 
 	if (answerNum == 0) { return NULL; }
 
-	char* rawQuestion = rawResponse + sizeof(DNS_HEADER);
-	
-	int questionIdx;
+	if (CheckResponseHeader(&dnsHeader) != VALID) { return NULL; }
+
+
+	rawQuestion = rawResponse + sizeof(DNS_HEADER);
+
 	
 	for (questionIdx = 0; questionIdx < questionNum; questionIdx++)
 	{
@@ -160,30 +232,76 @@ char* FindAnswerBody(char* rawResponse)
 		rawQuestion += sizeof(DNS_QUESTION);
 	}
 
-	char* rawAnswer = rawQuestion;
+	rawAnswer = rawQuestion;
 
-	int isFound = SearchAnswerInSection(&rawAnswer, answerNum);
+	isFound = SearchAnswerInSection(&rawAnswer, answerNum);
 	if (isFound == FOUND) { return rawAnswer; }
 
 	return NULL;
 }
 
 
+/**
+* Parses raw DNS response messages.
+* @return HOSTENT structure contains the resultant translated IP address, or NULL if no valid answer was given.
+*/
 HOSTENT* ParseResponse(char* rawResponse, char* domainName)
 {
-	HOSTENT* responseEntry = (HOSTENT*)malloc(sizeof(HOSTENT));
-	char* rawAnswer = FindAnswerBody(rawResponse);
+	HOSTENT* responseEntry;
+	char** ipAddresses;
+	char* answerIP;
+	char* rawAnswer;
+	
+
+	// Find the valid answer's resource record
+	rawAnswer = FindAnswerBody(rawResponse);
 	if (rawAnswer == NULL) { return NULL; }
+
+
+	// Fill the resultant HOSTENT structure
+	responseEntry = (HOSTENT*)malloc(sizeof(HOSTENT));
+	if (responseEntry == NULL)
+	{
+		perror("ERROR");
+		exit(1);
+	}
 
 	responseEntry->h_name = domainName;
 	responseEntry->h_addrtype = AF_INET;
-	responseEntry->h_length = 4;
+	responseEntry->h_length = IP_ADDR_SIZE;
 	responseEntry->h_aliases = NULL;
-	char** addresses = (char**)malloc(2 * sizeof(char*));
-	addresses[0] = (char*)malloc(sizeof(u_long));
-	memcpy(addresses[0], (rawAnswer + sizeof(RESOURCE_RECORD)), 4);
-	addresses[1] = NULL;
-	responseEntry->h_addr_list = addresses;
+
+	ipAddresses = (char**)malloc(2 * sizeof(char*));
+	if (ipAddresses == NULL)
+	{
+		perror("ERROR");
+		exit(1);
+	}
+	ipAddresses[0] = (char*)malloc(IP_ADDR_SIZE);
+	if (ipAddresses[0] == NULL)
+	{
+		perror("ERROR");
+		exit(1);
+	}
+	answerIP = rawAnswer + sizeof(RESOURCE_RECORD);
+
+	memcpy(ipAddresses[0], answerIP, IP_ADDR_SIZE);
+	ipAddresses[1] = NULL;
+	responseEntry->h_addr_list = ipAddresses;
 
 	return responseEntry;
+}
+
+
+/**
+* Prints textual error message.
+*/
+void printSocketError(int errorCode)
+{
+	if (errorCode == GET_ERR_CODE)
+	{
+		errorCode = WSAGetLastError();
+	}
+
+	fprintf(stderr, "ERROR: Failed with error code 0x%x\n", errorCode);
 }

@@ -47,11 +47,18 @@ struct {
 } typedef RESOURCE_RECORD;
 
 
-#define FOUND (1)
-#define NOT_FOUND (0)
+#define FOUND			(1)
+#define NOT_FOUND		(0)
 
-#define TYPE_A (1)
-#define CLASS_IN (1)
+#define VALID			(1)
+#define INVALID			(0)
+
+#define TYPE_A			(1)
+#define CLASS_IN		(1)
+
+#define IP_ADDR_SIZE	(4)
+
+#define GET_ERR_CODE	(0)
 
 
 char* EncodeDomainName(char* domainName);
@@ -62,5 +69,6 @@ char* BuildQuery(char* domainName);
 char* FindAnswerBody(char* rawResponse);
 char* SkipDomainName(char* rawSection);
 HOSTENT* ParseResponse(char* rawResponse, char* domainName);
+int CheckResponseHeader(DNS_HEADER* dnsHeader);
 
 #endif
