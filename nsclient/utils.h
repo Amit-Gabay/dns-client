@@ -58,7 +58,15 @@ struct {
 
 #define IP_ADDR_SIZE	(4)
 
-#define GET_ERR_CODE	(0)
+#define NO_ERR			(0)
+#define DNS_BAD_FORMAT	(9001)
+#define DNS_SERVER_FAIL	(9002)
+#define DNS_NON_EXIST	(9003)
+#define DNS_NOT_SUPPORT	(9004)
+#define DNS_REFUSED		(9005)
+#define DNS_BAD_RCODE	(9006)
+#define DNS_BAD_NAME	(9007)
+#define BAD_IP_ADDR		(9008)
 
 
 char* EncodeDomainName(char* domainName);
@@ -70,5 +78,9 @@ char* FindAnswerBody(char* rawResponse);
 char* SkipDomainName(char* rawSection);
 HOSTENT* ParseResponse(char* rawResponse, char* domainName);
 int CheckResponseHeader(DNS_HEADER* dnsHeader);
+
+void FreeHostEnt(HOSTENT* hostent);
+void PrintSocketError();
+void PrintError();
 
 #endif

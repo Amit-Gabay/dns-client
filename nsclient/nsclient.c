@@ -16,7 +16,7 @@ int main(int argc, char** argv)
 {
 	char* dnsServerIP;
 	WSADATA wsaData;
-	int errorCode;
+
 
 	// Extract IP address from command line arguments
 	if (argc != 2)
@@ -29,45 +29,54 @@ int main(int argc, char** argv)
 	errorCode = WSAStartup(MAKEWORD(2, 2), &wsaData);
 	if (errorCode != 0)
 	{ 
-		printSocketError(errorCode);
+		PrintSocketError();
 		return 1;
 	}
 
 	InitClient(dnsServerIP);
 	ServeForever();
 
-	errorCode = WSACleanup();
-	if (errorCode != 0)
+	if (WSACleanup() == SOCKET_ERROR)
 	{
-		printSocketError(errorCode);
+		PrintSocketError();
 		return 1;
 	}
 }
 
 
 /**
-* Initializes socket related objects needed by the nsclient.
+* Initializes SOCKET-related objects needed by the nsclient.
 */
 int InitClient(char* dnsServerIP)
 {
 	u_int recvTimeout;
+	int returnCode;
 
 	// Assign DNS server address
-	inet_pton(AF_INET, dnsServerIP, &(nsClient.remoteAddr.sin_addr));
+	returnCode = inet_pton(AF_INET, dnsServerIP, &(nsClient.remoteAddr.sin_addr));
+	if (returnCode != 1)
+	{
+		if (returnCode == 0)
+		{
+			errorCode = BAD_IP_ADDR;
+		}
+		PrintSocketError();
+		exit(1);
+	}
 	nsClient.remoteAddr.sin_family = AF_INET;
 	nsClient.remoteAddr.sin_port = htons(DNS_PORT);
 
-	// Initialize client's socket (with desired recv timeout)
+	// Initialize client's socket (with desired recv timeout of 2 seconds)
 	recvTimeout = RECV_TIMEOUT;
 	nsClient.sock = socket(AF_INET, SOCK_DGRAM, 17);
 	if (nsClient.sock == INVALID_SOCKET)
 	{
-		printSocketError(GET_ERR_CODE);
+		PrintSocketError();
 		exit(1);
 	}
 	if (setsockopt(nsClient.sock, SOL_SOCKET, SO_RCVTIMEO, (const char*)&recvTimeout, sizeof(recvTimeout)) == SOCKET_ERROR)
 	{
-		printSocketError(GET_ERR_CODE);
+		PrintSocketError();
 		exit(1);
 	}
 }
@@ -84,12 +93,13 @@ int ServeForever()
 	char outputIP[256];			// **TODO: Validate the length**
 
 
+	// Serve user until 'quit'
 	while (1)
 	{
 		printf(CLI_PROMPT);
 		if (scanf("%s", domainName) != 1)
 		{
-			perror("ERROR");
+			PrintError();
 			exit(1);
 		}
 
@@ -100,11 +110,13 @@ int ServeForever()
 		// Validate given domain name syntax
 		if (!CheckDomainName(domainName))
 		{
-			fprintf(stderr, "%s\n", ERR_BAD_NAME);
+			errorCode = DNS_BAD_NAME;
+			PrintSocketError();
 		}
 
 		response = dnsQuery(domainName);
 
+		// Check whether results were found
 		if (response != NULL)
 		{
 			// Extract the IP address from the response
@@ -113,21 +125,26 @@ int ServeForever()
 				resultIP.s_addr = *(u_long*) response->h_addr_list[0];
 				if (inet_ntop(AF_INET, &resultIP, outputIP, 256) == NULL)	// **TODO: Validate the length (256)**
 				{
-					printSocketError(GET_ERR_CODE);
+					PrintSocketError();
 					exit(1);
 				}
 				printf("%s\n", outputIP);
 			}
+			FreeHostEnt(response);
 		}
 		else
 		{
-			// If no results were found
-			fprintf(stderr, "%s\n", ERR_NON_EXIST);
+			PrintSocketError();
 		}
 	}
 }
 
 
+/**
+* Performs a DNS query to translate given domain name.
+* @param :domainName: NULL-terminated domain name
+* @return pointer to a HOSTENT structure with the answer details, or NULL if an error occured.
+*/
 HOSTENT* dnsQuery(char* domainName)
 {
 	char* queryMsg;
@@ -140,7 +157,7 @@ HOSTENT* dnsQuery(char* domainName)
 	queryMsg = BuildQuery(domainName, &queryLen);
 	if (sendto(nsClient.sock, queryMsg, queryLen, 0, (SOCKADDR*)&nsClient.remoteAddr, sizeof(SOCKADDR_IN)) == SOCKET_ERROR)
 	{
-		printSocketError(GET_ERR_CODE);
+		PrintSocketError();
 		exit(1);
 	}
 	free(queryMsg);
@@ -149,16 +166,17 @@ HOSTENT* dnsQuery(char* domainName)
 	responseMsg = (char*)malloc(512);		// **TODO: Validate length**
 	if (responseMsg == NULL)
 	{
-		perror("ERROR");
+		PrintError();
 		exit(1);
 	}
 	addrLen = sizeof(SOCKADDR_IN);
 	if (recvfrom(nsClient.sock, responseMsg, 512, 0, (SOCKADDR*)&nsClient.remoteAddr, &addrLen) == SOCKET_ERROR)
 	{
-		printSocketError(GET_ERR_CODE);
+		PrintSocketError();
 		exit(1);
 	}
 	responseEntry = ParseResponse(responseMsg, domainName);
+	free(responseMsg);
 
 	return responseEntry;
 }
