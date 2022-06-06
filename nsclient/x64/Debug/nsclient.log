@@ -1,16 +1,7 @@
 ﻿  nsclient.c
-C:\Users\amitg\source\repos\nsclient\nsclient\nsclient.c(56,15): warning C4013: 'inet_pton' undefined; assuming extern returning int
-C:\Users\amitg\source\repos\nsclient\nsclient\nsclient.c(126,9): warning C4013: 'inet_ntop' undefined; assuming extern returning int
-C:\Users\amitg\source\repos\nsclient\nsclient\nsclient.c(126,61): warning C4047: '==': 'int' differs in levels of indirection from 'void *'
-C:\Users\amitg\source\repos\nsclient\nsclient\nsclient.c(157,36): warning C4020: 'BuildQuery': too many actual parameters
+C:\Users\amitg\source\repos\nsclient\nsclient\nsclient.c(53,15): warning C4013: 'inet_pton' undefined; assuming extern returning int
+C:\Users\amitg\source\repos\nsclient\nsclient\nsclient.c(125,10): warning C4013: 'inet_ntop' undefined; assuming extern returning int
   utils.c
-C:\Users\amitg\source\repos\nsclient\nsclient\utils.c(88,18): warning C4133: 'return': incompatible types - from 'DNS_HEADER *' to 'char *'
-C:\Users\amitg\source\repos\nsclient\nsclient\utils.c(107,20): warning C4133: 'return': incompatible types - from 'DNS_QUESTION *' to 'char *'
-C:\Users\amitg\source\repos\nsclient\nsclient\utils.c(112,1): warning C4029: declared formal parameter list different from definition
-C:\Users\amitg\source\repos\nsclient\nsclient\utils.c(122,34): warning C4133: '=': incompatible types - from 'char *' to 'DNS_HEADER *'
-C:\Users\amitg\source\repos\nsclient\nsclient\utils.c(123,38): warning C4133: '=': incompatible types - from 'char *' to 'DNS_QUESTION *'
-C:\Users\amitg\source\repos\nsclient\nsclient\utils.c(128,32): warning C4267: '=': conversion from 'size_t' to 'unsigned int', possible loss of data
   Generating Code...
-C:\Users\amitg\source\repos\nsclient\nsclient\nsclient.c(82): warning C4715: 'InitClient': not all control paths return a value
-C:\Users\amitg\source\repos\nsclient\nsclient\nsclient.c(140): warning C4715: 'ServeForever': not all control paths return a value
+C:\Users\amitg\source\repos\nsclient\nsclient\nsclient.c(79): warning C4715: 'InitClient': not all control paths return a value
   nsclient.vcxproj -> C:\Users\amitg\source\repos\nsclient\x64\Debug\nsclient.exe

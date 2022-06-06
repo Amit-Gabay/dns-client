@@ -6,17 +6,31 @@ int errorCode = NO_ERR;
 int CheckDomainName(char *domainName)
 {
 	int i = 0;
+	int j = 0;
+
 	while (domainName[i] != 0)
 	{
 		if (!((domainName[i] >= '0' && domainName[i] <= '9')	// digits
 			  || (domainName[i] >= 'A' && domainName[i] <= 'Z') // Capital letters
 			  || (domainName[i] >= 'a' && domainName[i] <= 'z') // letters
-			  || (domainName[i] == '.')))
+			  || (domainName[i] == '.')
+			  || (domainName[i] == '-')))
 		{
 			return 0;
 		}
+		if (domainName[i] != '.') { j++; }
+		else if (j > 63 || j == 0)
+		{
+			return 0;
+		}
+		else { j = 0; }
 		i++;
 	}
+	if (i > 255)
+	{
+		return 0;
+	}
+
 	return 1;
 }
 

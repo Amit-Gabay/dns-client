@@ -151,7 +151,6 @@ HOSTENT *dnsQuery(char *domainName)
 	u_int queryLen = 0;
 	int addrLen;
 	HOSTENT *responseEntry;
-	printf("domain: %s\n", domainName);
 	// Send DNS query to chosen DNS server
 	queryMsg = BuildQuery(domainName, &queryLen);
 
@@ -171,6 +170,8 @@ HOSTENT *dnsQuery(char *domainName)
 	addrLen = sizeof(SOCKADDR_IN);
 	unsigned int query_id;
 	unsigned int response_id;
+
+	// Receive DNS responses, until received the proper reponse ID
 	do
 	{
 		if (recvfrom(nsClient.sock, responseMsg, 512, 0, (SOCKADDR *)&nsClient.remoteAddr, &addrLen) == SOCKET_ERROR)
@@ -186,10 +187,6 @@ HOSTENT *dnsQuery(char *domainName)
 
 	responseEntry = ParseResponse(responseMsg, domainName);
 	free(responseMsg);
-	if (responseEntry == NULL)
-	{
-		printf("responseEntry is NULL");
-	}
 
 	return responseEntry;
 }
