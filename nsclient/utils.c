@@ -3,6 +3,10 @@
 int transactionID = 0;
 int errorCode = NO_ERR;
 
+/**
+* Checks whether a domain name has a valid syntax.
+* @return 0 if the name is invalid, 1 else
+*/
 int CheckDomainName(char *domainName)
 {
 	int i = 0;
@@ -46,7 +50,7 @@ char *EncodeDomainName(char *domainName)
 	int endIdx = 0;
 	int labelLen;
 
-	encodedName = (char *)malloc(256); // **TODO: Validate length**
+	encodedName = (char *)malloc(256);
 	if (encodedName == NULL)
 	{
 		PrintError();
@@ -94,11 +98,11 @@ DNS_HEADER *BuildHeaderSection()
 	}
 
 	dnsHeader->id = transactionID++;
-	dnsHeader->qr = 0; // It's a query
+	dnsHeader->qr = 0;		// It's a query
 	dnsHeader->opcode = 0;
 	dnsHeader->aa = 0;
 	dnsHeader->tc = 0;
-	dnsHeader->rd = 0x1; // Recursion is desired
+	dnsHeader->rd = 0x1;	// Recursion is desired
 	dnsHeader->ra = 0;
 	dnsHeader->z = 0x000;
 	dnsHeader->rcode = 0x0000;
@@ -128,6 +132,9 @@ DNS_QUESTION *BuildQuestionSection()
 	return dnsQuestion;
 }
 
+/**
+* Builds a whole DNS query message.
+*/
 char *BuildQuery(char *domainName, u_int *queryLen)
 {
 	DNS_HEADER *dnsHeader;
@@ -153,10 +160,7 @@ char *BuildQuery(char *domainName, u_int *queryLen)
 		PrintError();
 		exit(1);
 	}
-	// for (int i = 0; i < *queryLen; i++)
-	// {
-	// 	query[i] = 0;
-	// }
+
 	pointer = query;
 
 	memcpy(pointer, dnsHeader, sizeof(DNS_HEADER));
@@ -188,7 +192,7 @@ char *SkipDomainName(char *rawSection)
 		{
 			return rawSection + sizeof(unsigned short);
 		}
-		rawSection += labelSize + 1; // TODO arothmetic overflow might be problematic on long addreses
+		rawSection += labelSize + 1;
 	} while (labelSize != 0);
 
 	return rawSection;

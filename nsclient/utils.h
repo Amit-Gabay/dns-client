@@ -4,14 +4,12 @@
 #define _CRT_SECURE_NO_WARNINGS
 
 #include <winsock2.h>
-//#include <windns.h>
 #include <stdlib.h>
 #include <stdio.h>
 #include <errno.h>
 #include <string.h>
 
 #pragma comment(lib, "ws2_32.lib")
-//#pragma comment(lib, "dnsapi.lib")
 
 struct
 {

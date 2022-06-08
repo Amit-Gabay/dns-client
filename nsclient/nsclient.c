@@ -7,8 +7,6 @@
 
 #pragma comment(lib, "ws2_32.lib")
 
-// unsigned int buffer_len;    **TODO: Check if needed**
-
 CLIENT nsClient;
 
 int main(int argc, char **argv)
@@ -83,17 +81,17 @@ int InitClient(char *dnsServerIP)
  */
 void ServeForever()
 {
-	char domainName[256]; // **TODO: Validate the length**
+	char domainName[256];
 	HOSTENT *response;
 	struct in_addr resultIP;
-	char outputIP[256]; // **TODO: Validate the length**
+	char outputIP[256]; 
 
 	// Serve user until 'quit'
 	while (1)
 	{
-		errorCode = 0; // YARDEN remove this
+		errorCode = 0;
 		printf(CLI_PROMPT);
-		if (scanf("%s", domainName) != 1) // YARDEN: This will read until white-space. use %[^\n] to until new line, then fix
+		if (scanf("%s", domainName) != 1) 
 		{
 			PrintError();
 			exit(1);
@@ -110,7 +108,7 @@ void ServeForever()
 		{
 			errorCode = DNS_BAD_NAME;
 			PrintSocketError();
-			continue; // Yarden - not calling dnsQuery with a bad name
+			continue;
 		}
 
 		response = dnsQuery(domainName);
@@ -122,7 +120,7 @@ void ServeForever()
 			if (response->h_addr_list[0] != NULL)
 			{
 				resultIP.s_addr = *(u_long *)response->h_addr_list[0];
-				if (!inet_ntop(AF_INET, &resultIP, outputIP, 256)) // **TODO: Validate the length (256)**
+				if (!inet_ntop(AF_INET, &resultIP, outputIP, 256))
 				{
 					PrintSocketError();
 					exit(1);
@@ -161,7 +159,7 @@ HOSTENT *dnsQuery(char *domainName)
 	}
 
 	// Parse DNS response
-	responseMsg = (char *)malloc(512); // **TODO: Validate length**
+	responseMsg = (char *)malloc(512);
 	if (responseMsg == NULL)
 	{
 		PrintError();
@@ -181,7 +179,7 @@ HOSTENT *dnsQuery(char *domainName)
 		}
 		query_id = queryMsg[0] | (queryMsg[1] << 8);
 		response_id = responseMsg[0] | (responseMsg[1] << 8);
-	} while (response_id < query_id); // YARDEN after error the DNS returns the same answer again
+	} while (response_id < query_id);
 
 	free(queryMsg);
 
